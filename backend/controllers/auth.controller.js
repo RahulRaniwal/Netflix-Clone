@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import User from '../models/user.model.js'
+import generateToken from '../utils/generateToken.js';
 
 
 export const signup = async (req , res) =>{
@@ -41,9 +42,11 @@ export const signup = async (req , res) =>{
       image: avatar
     })
 
-    await user.save();
+      generateToken(user._id , res);
+      await user.save();
+      res.status(201).json({ success: true, message: "User created successfully" });
 
-    res.status(201).json({success: true , message: 'User created successfully'});
+    
 
   } catch (error) {
     console.error(`Error during signup: ${error.message}`);
@@ -52,9 +55,41 @@ export const signup = async (req , res) =>{
 }
 
 export const login = async(req , res) =>{
-  res.send('Login route');
+  try {
+    const {email , password} = req.body;
+
+    // Validate input
+    if(!email || !password){
+      return res.status(400).json({success: false , message: 'All fields are required'});
+    }
+
+    // check if user exist
+    const user = await User.findOne({email: email});
+    if(!user){
+      return res.status(404).json({success: false , message: 'User not found'});
+    }
+    // validate the password
+    const isPasswordValid = await bcrypt.compare(password , user.password);
+    if(!isPasswordValid){
+      return res.status(400).json({success: false , message: 'Invalid password'});
+    }
+    // generate a jwt token
+    generateToken(user._id , res);
+    res.status(200).json({success: true , message: "Login successful",});
+  } catch (error) {
+    console.error(`Error during login: ${error.message}`);
+    res.status(500).json({success: false , message: 'Server error'});
+  }
 }
 
 export const logout = async(req , res) =>{
-  res.send('Logout route');
+  try {
+    // clear the jwt token
+    res.clearCookie('jwt-netflix');
+    // send the response to confirm logout
+    return res.status(200).json({success: true , message: "User logged out successfully"});
+  } catch (error) {
+    console.log(`Error during logout: ${error.message}`);
+    res.status(500).json({success: false , message: 'Server error during logout'});
+  }
 }
