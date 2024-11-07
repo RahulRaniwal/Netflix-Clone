@@ -44,7 +44,11 @@ export const signup = async (req , res) =>{
 
       generateToken(user._id , res);
       await user.save();
-      res.status(201).json({ success: true, message: "User created successfully" });
+      res.status(201).json({
+          success: true, 
+          message: "User created successfully",
+          user: {...user._doc, password: ""}  
+        });
 
     
 
@@ -71,11 +75,20 @@ export const login = async(req , res) =>{
     // validate the password
     const isPasswordValid = await bcrypt.compare(password , user.password);
     if(!isPasswordValid){
-      return res.status(400).json({success: false , message: 'Invalid password'});
+      return res.status(400).json({
+        success: false , 
+        message: 'Invalid password',
+      });
     }
     // generate a jwt token
     generateToken(user._id , res);
-    res.status(200).json({success: true , message: "Login successful",});
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Login successful",
+        user: { ...user._doc, password: "" },
+      });
   } catch (error) {
     console.error(`Error during login: ${error.message}`);
     res.status(500).json({success: false , message: 'Server error'});
@@ -91,5 +104,15 @@ export const logout = async(req , res) =>{
   } catch (error) {
     console.log(`Error during logout: ${error.message}`);
     res.status(500).json({success: false , message: 'Server error during logout'});
+  }
+}
+
+export const authCheck = async(req , res) =>{
+  try {
+    const user = req.user;
+    res.status(200).json({success: true , message: "User authenticated", user: user});
+  } catch (error) {
+    console.error(`Error in authCheck controller: ${error.message}`);
+    res.status(500).json({success: false , message: 'Server error during authentication'});
   }
 }

@@ -25,6 +25,14 @@ app.use("/api/v1/movie", protectRoute , movieRoutes);
 app.use("/api/v1/tv" , protectRoute , tvRoutes);
 app.use("/api/v1/search", protectRoute , searchRoutes);
 
+app.get("/", (req, res) => {
+  res.send("Welcome to the API server for the netflix clone, built by raniwal");
+});
+
+app.use((req , res) =>{
+  res.status(404).json({success: false, message: "Page not found"});
+})
+
 app.listen(PORT , () =>{
   console.log(`Server is running on port ${PORT}`);
 })
