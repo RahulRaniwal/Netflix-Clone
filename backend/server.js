@@ -29,9 +29,6 @@ app.use("/api/v1/movie", protectRoute , movieRoutes);
 app.use("/api/v1/tv" , protectRoute , tvRoutes);
 app.use("/api/v1/search", protectRoute , searchRoutes);
 
-app.get("/", (req, res) => {
-  res.send("Welcome to the API server for the netflix clone, built by raniwal");
-});
 if(process.env.NODE_ENV === "production"){
   app.use(express.static(path.join(__dirname , "/frontend/dist")));
 
