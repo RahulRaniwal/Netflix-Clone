@@ -16,7 +16,7 @@ const LoginPage = () => {
     password: '',
   };
 
-  const {login} = useAuthStore();
+  const { login, isLoggedIn } = useAuthStore();
 
   const handleLogin = (values) => {
     login({email: values.email, password: values.password});
@@ -62,8 +62,9 @@ const LoginPage = () => {
                 <button
                   type="submit"
                   className='w-full py-2 bg-red-600 text-white font-semibold rounded-md hover:bg-red-700'
+                  disabled={isLoggedIn}
                 >
-                  Sign In
+                  {isLoggedIn ? "Loading..." : "Login"}
                 </button>
 
                 <div className='text-center text-gray-400'>
